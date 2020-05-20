@@ -26,6 +26,10 @@ func main() {
 	var iterC int
 	var buff = make([]byte, 60000)
 	var n int
+	if len(os.Args) < 3 {
+		log.Println(help)
+		return
+	}
 	if lAddr, err = net.ResolveIPAddr(nt, intrf); err != nil {
 		err = fmt.Errorf("200311_ipsniffer: net.ResolveIPAddr err=%v", err.Error())
 		log.Printf("%v\n", err.Error())
