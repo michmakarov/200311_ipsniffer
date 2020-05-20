@@ -12,10 +12,11 @@ import (
 const ()
 
 var (
-	ipConn *net.IPConn
-	lAddr  *net.IPAddr
-	nt     string //= "ip:1"
-	intrf  string //= "192.168.1.44"
+	git_commit_1 = "no data of building"
+	ipConn       *net.IPConn
+	lAddr        *net.IPAddr
+	nt           string //= "ip:1"
+	intrf        string //= "192.168.1.44"
 )
 
 //Exit codes
@@ -26,6 +27,7 @@ func main() {
 	var iterC int
 	var buff = make([]byte, 60000)
 	var n int
+	fmt.Printf("200311_ipsniffer %v; pid=%v", git_commit_1, os.Getpid())
 	if len(os.Args) < 3 {
 		log.Println(help)
 		return
