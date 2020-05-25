@@ -58,7 +58,15 @@ func main() {
 		if n, err = ipConn.Read(buff); err != nil {
 			log.Printf("Reading err=%v\n", err.Error())
 		} else {
-			log.Printf("having read(n=%v)=%v\n", n, string(buff[:n]))
+			buff = buff[:n]
+			//log.Printf("having read(n=%v)=%v\n", n, string(buff[:n]))
+			if h, err := extrHeader(buff); err == nil {
+				fmt.Printf("%v\n", h.String())
+				fmt.Printf("payload=%v\n", string(buff[h.HeaderLen:]))
+			} else {
+				fmt.Printf("%v\n", err.Error())
+			}
+
 		}
 
 	} //for
