@@ -6,7 +6,7 @@ package main
 //)
 var help = `
 This console program is IP sniffer.
-That is it, by a raw socket, is given copies of all IP packets with a certain protocol.
+That is it, by a raw socket of IP4 net (domain=AF_INET) , is given copies of all IP packets with a certain protocol.
 Then it shows them in one or another way.
 If the prog is run and number of params less than two it prints this text and ends its work.
 Otherwise it expects next params in order of writing:

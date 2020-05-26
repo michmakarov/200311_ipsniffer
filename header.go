@@ -5,7 +5,27 @@ import (
 	"fmt"
 )
 
-type Header struct {
+type ICMP struct { //ICMP - internet control message protocol
+	Type int //byte
+	Code int //byte;
+	//TYpe==0,Code==0 - echo answer
+	//TYpe==8,Code==0 - echo request
+	//Data of both is same in structure
+	ChSum int    //two byte
+	Data  []byte //It is defined by Type and Code
+}
+
+type ICMPEchoData struct {
+	ID      int    //two byte
+	Num     int    //two byte
+	Payload string //optional; "" if no
+}
+
+func (echo ICMPEchoData) String() string {
+	return fmt.Sprintf("ID=%v, Num=%v, Payload=\"%v\"", echo.ID, echo.Num, echo.Payload)
+}
+
+type IPHeader struct {
 	Ver            int
 	HeaderLen      int
 	ECN            int
@@ -20,7 +40,7 @@ type Header struct {
 	DestIp         string
 }
 
-func (h Header) String() string {
+func (h IPHeader) String() string {
 	return fmt.Sprintf("Ver=%v,HeaderLen=%v,ECN=%v,FulLen=%v,ID=%v,Flags=%v,FragShift=%v,TTL=%v,Proto=%v,SourceIP=%v,DestIp=%v",
 		h.Ver, h.HeaderLen, h.ECN, h.FulLen, h.ID, h.Flags, h.FragShift, h.TTL, h.Proto, h.SourceIP, h.DestIp)
 }
@@ -28,8 +48,8 @@ func (h Header) String() string {
 //extrHeader extracts a Header structure from a given slice (pack)
 //That is it regards the packet as an IP packet and parses it with no care about sense
 //It returns an only error when len(pack) < 20
-func extrHeader(pack []byte) (h Header, err error) {
-	h = Header{}
+func extrIPHeader(pack []byte) (h IPHeader, err error) {
+	h = IPHeader{}
 	if len(pack) < 20 {
 		err = fmt.Errorf("extrHeader: len(pack)<20")
 		return
@@ -47,7 +67,33 @@ func extrHeader(pack []byte) (h Header, err error) {
 	h.HeaderCheckSum = rngBE(pack[10:12], 0, 15)
 	h.SourceIP = addrAsStr(pack[12:16])
 	h.DestIp = addrAsStr(pack[16:20])
+	return
+}
 
+//ParseICMP takes a slice (p) and regards it as ICMP message (see https://ru.wikipedia.org/wiki/ICMP)
+func parseICMP(p []byte) (m ICMP) {
+	if len(p) < 8 {
+		panic("ParseICMP: len(p)<8")
+	}
+	m = ICMP{}
+	m.Type = rngBE(p[0:1], 0, 7)
+	m.Code = rngBE(p[1:2], 0, 7)
+	m.ChSum = rngBE(p[2:4], 0, 15)
+	m.Data = p[4:]
+	return
+}
+func (m ICMP) String() string {
+	return fmt.Sprintf("", m.Type, m.Code, parseICMPEchoData(m.Data).String())
+}
+
+func parseICMPEchoData(data []byte) (ed ICMPEchoData) {
+	if len(data) < 4 {
+		panic("parseICMPEchoData: len(data)<4")
+	}
+	ed = ICMPEchoData{}
+	ed.ID = rngBE(data[0:2], 0, 15)
+	ed.Num = rngBE(data[2:4], 0, 15)
+	ed.Payload = string(data[4:])
 	return
 }
 

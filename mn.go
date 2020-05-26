@@ -25,7 +25,9 @@ var (
 func main() {
 	var err error
 	var iterC int
-	var buff = make([]byte, 60000)
+	var buff = make([]byte, 70000) //a buffer for an entire packet
+	//var payLoad []byte             //a buffer for payload
+	//var payLoadStr string          // payload as string
 	var n int
 	var nt string
 	fmt.Printf("200311_ipsniffer %v; pid=%v\n", git_commit_1, os.Getpid())
@@ -53,18 +55,29 @@ func main() {
 	}
 
 	for {
+		var h IPHeader
 		iterC++
 		log.Printf("Iteration=%v\n", iterC)
-		if n, err = ipConn.Read(buff); err != nil {
+		if n, err = ipConn.Read(buff); err != nil { //200526 19:38 May it be stated that if there is not err then all available data was read?
+			//It seems reasonable though the documentation does not say it.
 			log.Printf("Reading err=%v\n", err.Error())
+			continue
 		} else {
 			buff = buff[:n]
-			//log.Printf("having read(n=%v)=%v\n", n, string(buff[:n]))
-			if h, err := extrHeader(buff); err == nil {
+			if h, err = extrIPHeader(buff); err == nil {
+				//payLoad = buff[h.HeaderLen:]
 				fmt.Printf("%v\n", h.String())
 				fmt.Printf("payload=%v\n", string(buff[h.HeaderLen:]))
 			} else {
 				fmt.Printf("%v\n", err.Error())
+				continue
+			}
+			switch h.Proto {
+			case 1:
+				fmt.Printf("echo data: %v\n", parseICMPEchoData(parseICMP(buff[h.HeaderLen:]).Data).String())
+			default:
+				log.Printf("With protocol(%v) the packet cannot be shown in details.\n", h.Proto)
+
 			}
 
 		}
