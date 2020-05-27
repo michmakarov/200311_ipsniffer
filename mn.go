@@ -66,9 +66,11 @@ func main() {
 		} else {
 			buff = buff[:n]
 			if h, err = extrIPHeader(buff); err == nil {
-				//payLoad = buff[h.HeaderLen:]
+				//fmt.Printf("--M-- n=%v, len(buff)=%v\n", n, len(buff))
 				fmt.Printf("%v\n", h.String())
-				fmt.Printf("payload=%v\n", string(buff[h.HeaderLen:]))
+				fmt.Printf("payload=%v\n", string(buff[h.HeaderLen*4:h.FulLen]))
+				//fmt.Printf("h.HeaderLen=%v, h.FulLen=%v, payload=%v\n",h.HeaderLen, h.FulLen, string(buff[h.HeaderLen*4:h.FulLen]))
+				//fmt.Printf("payload=%v\n", string(buff[20:25]))
 			} else {
 				fmt.Printf("%v\n", err.Error())
 				continue
@@ -76,7 +78,7 @@ func main() {
 			switch h.Proto {
 			case 1:
 				//fmt.Printf("ICMP details: %v\n", parseICMPEchoData(parseICMP(buff[h.HeaderLen:]).Data).String())
-				fmt.Printf("ICMP details: %v\n", parseICMP(buff[h.HeaderLen:]).String())
+				fmt.Printf("ICMP details: %v\n", parseICMP(buff[h.HeaderLen*4:]).String())
 			default:
 				fmt.Printf("With protocol(%v) the packet cannot be shown in details.\n", h.Proto)
 
