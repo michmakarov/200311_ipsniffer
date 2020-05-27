@@ -57,6 +57,7 @@ func main() {
 	for {
 		var h IPHeader
 		iterC++
+		fmt.Println("___________________________________")
 		log.Printf("Iteration=%v\n", iterC)
 		if n, err = ipConn.Read(buff); err != nil { //200526 19:38 May it be stated that if there is not err then all available data was read?
 			//It seems reasonable though the documentation does not say it.
@@ -74,9 +75,10 @@ func main() {
 			}
 			switch h.Proto {
 			case 1:
-				fmt.Printf("echo data: %v\n", parseICMPEchoData(parseICMP(buff[h.HeaderLen:]).Data).String())
+				//fmt.Printf("ICMP details: %v\n", parseICMPEchoData(parseICMP(buff[h.HeaderLen:]).Data).String())
+				fmt.Printf("ICMP details: %v\n", parseICMP(buff[h.HeaderLen:]).String())
 			default:
-				log.Printf("With protocol(%v) the packet cannot be shown in details.\n", h.Proto)
+				fmt.Printf("With protocol(%v) the packet cannot be shown in details.\n", h.Proto)
 
 			}
 
