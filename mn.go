@@ -9,10 +9,12 @@ import (
 	//"time"
 )
 
-const ()
+const (
+	showPayLoad = 64 //Maximum number of byte of a packet's payload, that will be shown
+)
 
 var (
-	git_commit_1 = "no data of building"
+	git_commit_1 = "no data of building" //set by bg.sh
 	ipConn       *net.IPConn
 	lAddr        *net.IPAddr
 	proto        string //1 for ICMP
@@ -26,7 +28,7 @@ func main() {
 	var err error
 	var iterC int
 	var buff = make([]byte, 70000) //a buffer for an entire packet
-	//var payLoad []byte             //a buffer for payload
+	var payLoad []byte             //a buffer for payload
 	//var payLoadStr string          // payload as string
 	var n int
 	var nt string
@@ -65,14 +67,16 @@ func main() {
 			continue
 		} else {
 			buff = buff[:n]
+			payLoad = buff[h.HeaderLen*4 : h.FulLen]
 			if h, err = extrIPHeader(buff); err == nil {
-				//fmt.Printf("--M-- n=%v, len(buff)=%v\n", n, len(buff))
 				fmt.Printf("%v\n", h.String())
-				fmt.Printf("payload=%v\n", string(buff[h.HeaderLen*4:h.FulLen]))
-				//fmt.Printf("h.HeaderLen=%v, h.FulLen=%v, payload=%v\n",h.HeaderLen, h.FulLen, string(buff[h.HeaderLen*4:h.FulLen]))
-				//fmt.Printf("payload=%v\n", string(buff[20:25]))
+				if (h.FulLen - h.HeaderLen*4) <= showPayLoad {
+					fmt.Printf("payload=%v\n", string(payLoad))
+				} else {
+					fmt.Printf("payload=%v ...\n", string(payLoad[:showPayLoad]))
+				}
 			} else {
-				fmt.Printf("%v\n", err.Error())
+				fmt.Printf("Error of parsing header:%v\n", err.Error())
 				continue
 			}
 			switch h.Proto {

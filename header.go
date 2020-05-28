@@ -36,7 +36,7 @@ func extrIPHeader(pack []byte) (h IPHeader, err error) {
 	}
 	h.Ver = rngBE(pack[:1], 0, 3)
 	h.HeaderLen = rngBE(pack[:1], 4, 7)
-	//200525 16:55 continuation
+	//200525 16:55; continuation
 	h.ECN = rngBE(pack[:1], 6, 7)
 	h.FulLen = rngBE(pack[2:4], 0, 15)
 	h.ID = rngBE(pack[4:6], 0, 15)
